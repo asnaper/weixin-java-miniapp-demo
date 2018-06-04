@@ -1,12 +1,15 @@
 package com.github.binarywang.demo.wechat.controller;
 
+
+import com.alibaba.fastjson.JSONObject;
+import com.github.binarywang.demo.wechat.dao.ConsumerMapper;
+import com.github.binarywang.demo.wechat.entity.Consumer;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.jdbc.Null;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import cn.binarywang.wx.miniapp.api.WxMaService;
 import cn.binarywang.wx.miniapp.bean.WxMaJscode2SessionResult;
@@ -28,6 +31,8 @@ public class WxMaUserController {
     @Autowired
     private WxMaService wxService;
 
+    @Autowired
+    private ConsumerMapper consumerMapper;
     /**
      * 登陆接口
      */
@@ -42,7 +47,34 @@ public class WxMaUserController {
             this.logger.info(session.getSessionKey());
             this.logger.info(session.getOpenid());
             //TODO 可以增加自己的逻辑，关联业务相关数据
-            return JsonUtils.toJson(session);
+            String wxOpenId = session.getOpenid();
+            Consumer consumer = new Consumer();
+            consumer.setWechatOpenid(wxOpenId);
+            loginOrRegisterConsumer(consumer);
+            Consumer consumer1 = consumerMapper.findConsumerByWechatOpenid(consumer.getWechatOpenid());
+            String  flagNeedUpdate = "true";
+            if (null != consumer1){
+                if( null != consumer1.getNickname() && !consumer1.getNickname().isEmpty()) {
+                    flagNeedUpdate = "false";
+                }
+            }
+            //业务处理逻辑结束
+            //创建JSON对象
+            JSONObject jsonObject = new JSONObject();
+            String retMsg = "success";
+            try {
+                jsonObject.put("data",session);
+
+                jsonObject.put("needupdate",flagNeedUpdate);
+            }catch (Exception e)
+            {
+                retMsg = "failed";
+                jsonObject.put("result",retMsg);
+            }
+            jsonObject.put("result",retMsg);
+            this.logger.info(jsonObject.toJSONString());
+            return jsonObject.toJSONString();
+            //return JsonUtils.toJson(session);
         } catch (WxErrorException e) {
             this.logger.error(e.getMessage(), e);
             return e.toString();
@@ -67,6 +99,13 @@ public class WxMaUserController {
         return JsonUtils.toJson(userInfo);
     }
 
+    @PostMapping(path = "/updateMembers", consumes = "application/json", produces = "application/json")
+    public  Consumer updateMembers(@RequestBody Consumer consumer) {
+        this.logger.info(consumer.toString());
+        consumer.setWechatOpenid("otgmA4r9IDbTpfOwctS3yp26Ml1Y");
+        updateConsumerInfo(consumer);
+        return consumer;
+    }
     /**
      * <pre>
      * 获取用户绑定手机号信息
@@ -85,4 +124,31 @@ public class WxMaUserController {
         return JsonUtils.toJson(phoneNoInfo);
     }
 
+
+    private void loginOrRegisterConsumer(Consumer consumer) {
+        Consumer consumer1 = consumerMapper.findConsumerByWechatOpenid(consumer.getWechatOpenid());
+        if (null == consumer1) {
+            consumerMapper.insertConsumer(consumer);
+        }
+    }
+
+    public void updateConsumerInfo(Consumer consumer) {
+        Consumer consumerExist = consumerMapper.findConsumerByWechatOpenid(consumer.getWechatOpenid());
+        if( null != consumerExist ){
+            consumerExist.setUpdatedBy(1L);
+            consumerExist.setUpdatedAt(System.currentTimeMillis());
+            consumerExist.setGender(consumer.getGender());
+            consumerExist.setAvatarUrl(consumer.getAvatarUrl());
+            consumerExist.setWechatOpenid(consumer.getWechatOpenid());
+            consumerExist.setEmail(consumer.getEmail());
+            consumerExist.setNickname(consumer.getNickname());
+            consumerExist.setPhone(consumer.getPhone());
+            consumerExist.setUsername(consumer.getUsername());
+            consumerMapper.updateConsumer(consumerExist);
+        }
+        else {
+            this.logger.error("updateConsumerInfo FAILED");
+        }
+
+    }
 }

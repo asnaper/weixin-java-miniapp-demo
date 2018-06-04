@@ -2,6 +2,7 @@ package com.github.binarywang.demo.wechat.config;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
@@ -12,17 +13,19 @@ public class WxMaProperties {
     /**
      * 设置微信小程序的appid
      */
+    @Value("${auth.wechat.appId}")
     private String appid;
 
     /**
      * 设置微信小程序的Secret
      */
+    @Value("${auth.wechat.secret}")
     private String secret;
 
     /**
      * 设置微信小程序的token
      */
-    private String token;
+    private String token="token";
 
     /**
      * 设置微信小程序的EncodingAESKey

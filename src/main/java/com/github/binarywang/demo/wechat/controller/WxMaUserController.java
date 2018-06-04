@@ -21,6 +21,7 @@ import cn.binarywang.wx.miniapp.bean.WxMaUserInfo;
 import com.github.binarywang.demo.wechat.utils.JsonUtils;
 import me.chanjar.weixin.common.exception.WxErrorException;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -46,32 +47,46 @@ public class WxMaUserController {
      */
     @GetMapping("/login")
     public String login(String code) {
-        if (StringUtils.isBlank(code)) {
-            return "empty jscode";
-        }
+        JSONObject jsonObject = new JSONObject();
+        String retMsg = "success";
 
+        if (StringUtils.isBlank(code)) {
+            jsonObject.put(ConstDefine.JSON_RESULT_MSG,ConstDefine.JSON_FAIL);
+            return jsonObject.toJSONString();
+        }
         try {
+
             WxMaJscode2SessionResult session = this.wxService.getUserService().getSessionInfo(code);
             this.logger.info(session.getSessionKey());
             this.logger.info(session.getOpenid());
+            Map<String,Object> map = CommonUtils.convertObj2Map(session);
             //TODO 可以增加自己的逻辑，关联业务相关数据
             String wxOpenId = session.getOpenid();
             Consumer consumer = new Consumer();
             consumer.setWechatOpenid(wxOpenId);
             loginOrRegisterConsumer(consumer);
             String bUpdate = "true";
+
+            Consumer consumer_check = consumerMapper.findConsumerByWechatOpenid(wxOpenId);
+            if( null != consumer_check && null!= consumer_check.getNickname() && consumer_check.getNickname() != "")
+            {
+                bUpdate = "false";
+                map.put(ConstDefine.JSON_RET_CODE, ConstDefine.JSON_RET_CODE_OK);
+            }
+            else{
+                map.put(ConstDefine.JSON_RET_CODE, ConstDefine.JSON_RET_CODE_NEED_REGISTER);
+            }
             //业务处理逻辑结束
             //创建JSON对象
-            JSONObject jsonObject = new JSONObject();
-            String retMsg = "success";
-            Map<String,Object> map = CommonUtils.convertObj2Map(session);
-            map.put("bNeedUpdate",bUpdate);
+
+            // map.put("bNeedUpdate",bUpdate);
             try {
                 jsonObject.put(ConstDefine.JSON_DATA,map);
             }catch (Exception e)
             {
                 retMsg = "failed";
             }
+
             jsonObject.put(ConstDefine.JSON_RESULT_MSG,retMsg);
 
             //以下为获取得分的逻辑
@@ -80,11 +95,16 @@ public class WxMaUserController {
             MaxScore maxScore3 = maxScoreMapper.findClassScoreByWechatOpenid(wxOpenId,"3");
 
             //以上为获取得分的逻辑
+            this.logger.info(jsonObject.toJSONString());
             return jsonObject.toJSONString();
             //return JsonUtils.toJson(session);
         } catch (WxErrorException e) {
             this.logger.error(e.getMessage(), e);
-            return e.toString();
+            jsonObject.put(ConstDefine.JSON_RESULT_MSG,ConstDefine.JSON_FAIL);
+            Map<String,Object> map = new HashMap<>();
+            map.put(ConstDefine.JSON_RET_CODE, ConstDefine.JSON_RET_CODE_WECHAT_ERROR);
+            jsonObject.put(ConstDefine.JSON_DATA,map);
+            return jsonObject.toJSONString();
         }
     }
 
@@ -109,7 +129,7 @@ public class WxMaUserController {
     @PostMapping(path = "/updateMembers", consumes = "application/json", produces = "application/json")
     public  String updateMembers(@RequestBody Consumer consumer) {
         this.logger.info(">>>>> /updateMembers:"+consumer.toString());
-        consumer.setWechatOpenid("otgmA4r9IDbTpfOwctS3yp26Ml1Y");
+        //consumer.setWechatOpenid("otgmA4r9IDbTpfOwctS3yp26Ml1Y");
         JSONObject jsonObject = new JSONObject();
         String retMsg = "success";
         try{

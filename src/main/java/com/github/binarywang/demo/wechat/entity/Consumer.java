@@ -6,6 +6,7 @@ public class Consumer {
 
     private Long id;
     private String username;
+
     private String wechatOpenid;
     private Long phone;
 
@@ -52,10 +53,12 @@ public class Consumer {
         this.username = username;
     }
 
+    @JsonProperty("openid")
     public String getWechatOpenid() {
         return wechatOpenid;
     }
 
+    @JsonProperty("openid")
     public void setWechatOpenid(String wechatOpenid) {
         this.wechatOpenid = wechatOpenid;
     }

@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.binarywang.demo.wechat.dao.MaxScoreMapper">
+    <!--
+    <resultMap id="resultMap" type="com.github.binarywang.demo.wechat.entity.Consumer" >
+        <result column="gender" property="gender"  typeHandler="com.github.binarywang.demo.wechat.handler.UniversalEnumHandler"/>
+    </resultMap>
+    -->
+    <!-- 配置映射字段 -->
+    <!--<select id="findScoreByWechatOpenid" resultType="com.github.binarywang.demo.wechat.entity.MaxScore">
+        SELECT
+          `id`,
+          `username`,
+          `wechat_openid`,
+          `phone`,
+          `nickname`,
+          `avatar_url`,
+          `gender`,
+          'city',
+          'province',
+          'country',
+          'language',
+          `email`,
+          `deleted`,
+          `created_by`,
+          `created_at`,
+          `updated_by`,
+          `updated_at`
+        FROM
+          `consumer`
+        WHERE `id` = #{id}
+    </select>
+-->
+    <select id="findMaxScoreByWechatOpenid" resultType="com.github.binarywang.demo.wechat.entity.MaxScore">
+        SELECT
+          `seq_id`,
+          `user_id`,
+          `wechat_openid`,
+          `difficult_class`,
+          `max_score`,
+          `max_score_time`,
+          `update_time`
+        FROM
+          `max_score`
+        WHERE `wechat_openid` = #{wechatOpenid}
+    </select>
+
+    <select id="findClassScoreByWechatOpenid" resultType="com.github.binarywang.demo.wechat.entity.MaxScore">
+        SELECT
+        `seq_id`,
+        `user_id`,
+        `wechat_openid`,
+        `difficult_class`,
+        `max_score`,
+        `max_score_time`,
+        `update_time`
+        FROM
+        `max_score`
+        WHERE `wechat_openid` = #{wechat_openid}
+        AND   'difficult_class' = #{difficult_class}
+    </select>
+  <!--  CREATE TABLE `max_score` (
+    `seq_id` int(11) NOT NULL,
+    `user_id` int(11) NOT NULL,
+    `wechat_openid` varchar(64) NOT NULL COMMENT '用户openid',
+    `difficult_class` varchar(10) NOT NULL COMMENT '表示 游戏难度的阶段，class 1表示一阶，class 2表示二阶 class3 表示三阶',
+    `max_score` decimal(65,0) DEFAULT NULL COMMENT '对应阶段的最高分',
+    `max_score_time` datetime DEFAULT NULL COMMENT '最高分获取更新的时间',
+    `update_time` datetime NOT NULL COMMENT '更新时间',
+    PRIMARY KEY (`seq_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8-->
+
+    
+    <insert id="insertScore" parameterType="com.github.binarywang.demo.wechat.entity.MaxScore">
+        INSERT INTO `max_score` (
+          `user_id`,
+          `wechat_openid`,
+          `difficult_class`,
+          `max_score`,
+          `max_score_time`,
+          `update_time`
+        )
+        VALUES
+          (
+            #{user_id},
+            #{wechat_openid},
+            #{difficult_class},
+            #{max_score},
+            #{max_score_time},
+            #{update_time}
+          )
+    </insert>
+
+    <!--<update id="updateScore" parameterType="com.github.binarywang.demo.wechat.entity.MaxScore">
+        UPDATE
+          `consumer`
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="username != null and username != ''">
+                `username` = #{username},
+            </if>
+            <if test="phone != null and phone != ''">
+                `phone` = #{phone},
+            </if>
+            <if test="nickname != null and nickname != ''">
+                `nickname` = #{nickname},
+            </if>
+            <if test="avatarUrl != null and avatarUrl != ''">
+                `avatar_url` = #{avatarUrl},
+            </if>
+
+            <if test="gender != null">
+                `gender` = #{gender},
+            </if>
+
+            <if test="city != null and city != ''">
+                `city` = #{city},
+            </if>
+            <if test="province != null and province != ''">
+                `province` = #{province},
+            </if>
+            <if test="country != null and country != ''">
+                `country` = #{country},
+            </if>
+            <if test="language != null and language != ''">
+                `language` = #{language},
+            </if>
+
+            <if test="email != null and email != ''">
+                `email` = #{email},
+            </if>
+            <if test="deleted != null">
+                `deleted` = #{deleted},
+            </if>
+            <if test="updatedBy != null">
+                `updated_by` = #{updatedBy},
+            </if>
+            <if test="updatedAt != null">
+                `updated_at` = #{updatedAt},
+            </if>
+        </trim>
+        WHERE `id` = #{id}
+    </update>-->
+
+
+</mapper>

@@ -1,5 +1,8 @@
 package com.github.binarywang.demo.wechat.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.Date;
 
 public class MaxScore {
@@ -7,31 +10,35 @@ public class MaxScore {
     /*`seq_id` int(11) NOT NULL,
         `user_id` int(11) NOT NULL,
         `wechat_openid` varchar(64) NOT NULL COMMENT '用户openid',
-        `difficult_class` varchar(10) NOT NULL COMMENT '表示 游戏难度的阶段，class 1表示一阶，class 2表示二阶 class3 表示三阶',
+        `difficult_class` int NOT NULL COMMENT '表示 游戏难度的阶段，class 1表示一阶，class 2表示二阶 class3 表示三阶',
         `max_score` decimal(65,0) DEFAULT NULL COMMENT '对应阶段的最高分',
         `max_score_time` datetime DEFAULT NULL COMMENT '最高分获取更新的时间',
         `update_time` datetime NOT NULL COMMENT '更新时间',*/
-    private Long seq_id;
-    private Long user_id;
+    @JsonIgnore
+    private int seq_id;
+    @JsonIgnore
+    private int user_id;
     private String wechat_openid;
-    private String difficult_class;
+    private int difficult_class;
     private long  max_score;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm a z")
     private Date  max_score_time;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm a z")
     private Date  update_time;
 
-    public Long getSeq_id() {
+    public int getSeq_id() {
         return seq_id;
     }
 
-    public void setSeq_id(Long seq_id) {
+    public void setSeq_id(int seq_id) {
         this.seq_id = seq_id;
     }
 
-    public Long getUser_id() {
+    public int getUser_id() {
         return user_id;
     }
 
-    public void setUser_id(Long user_id) {
+    public void setUser_id(int user_id) {
         this.user_id = user_id;
     }
 
@@ -43,11 +50,11 @@ public class MaxScore {
         this.wechat_openid = wechat_openid;
     }
 
-    public String getDifficult_class() {
+    public int getDifficult_class() {
         return difficult_class;
     }
 
-    public void setDifficult_class(String difficult_class) {
+    public void setDifficult_class(int difficult_class) {
         this.difficult_class = difficult_class;
     }
 

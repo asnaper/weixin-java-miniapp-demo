@@ -1,12 +1,13 @@
 package com.github.binarywang.demo.wechat.entity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.binarywang.demo.wechat.enums.Gender;
 
 public class Consumer {
 
+
     private Long id;
     private String username;
-
     private String wechatOpenid;
     private Long phone;
 

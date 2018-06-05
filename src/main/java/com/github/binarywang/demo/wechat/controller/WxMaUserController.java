@@ -22,6 +22,7 @@ import com.github.binarywang.demo.wechat.utils.JsonUtils;
 import me.chanjar.weixin.common.exception.WxErrorException;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -54,6 +55,7 @@ public class WxMaUserController {
             jsonObject.put(ConstDefine.JSON_RESULT_MSG,ConstDefine.JSON_FAIL);
             return jsonObject.toJSONString();
         }
+
         try {
 
             WxMaJscode2SessionResult session = this.wxService.getUserService().getSessionInfo(code);
@@ -146,6 +148,21 @@ public class WxMaUserController {
         this.logger.info("<<<<< /updateMembers:"+jsonObject.toJSONString());
         return jsonObject.toJSONString();
     }
+
+    /**
+     *<pre>
+     *     获取排名记录
+     *
+     *</pre>
+     */
+    @GetMapping("/topscore")
+    public String topscore(String difficult_class,String openid){
+        int class_level = Integer.valueOf(difficult_class);
+        List<MaxScore> result =
+                maxScoreMapper.getTop10ScoreByClass(class_level);
+        return JsonUtils.toJson(result);
+    }
+
     /**
      * <pre>
      * 获取用户绑定手机号信息
@@ -204,5 +221,9 @@ public class WxMaUserController {
 
     private MaxScore getMaxScoreByWechatOpenID(String wechat_openid,String difficult_class){
         return maxScoreMapper.findClassScoreByWechatOpenid(wechat_openid,difficult_class);
+    }
+
+    private List<MaxScore> getTop10ScoreByClass(int difficult_class){
+        return maxScoreMapper.getTop10ScoreByClass(difficult_class);
     }
 }

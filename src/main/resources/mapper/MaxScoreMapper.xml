@@ -6,6 +6,16 @@
         <result column="gender" property="gender"  typeHandler="com.github.binarywang.demo.wechat.handler.UniversalEnumHandler"/>
     </resultMap>
     -->
+    <resultMap type="com.github.binarywang.demo.wechat.entity.MaxScore" id="scoreList">
+        <id     column="seq_id" property="seq_id"/>
+        <result column="user_id" property="user_id"/>
+        <result column="wechat_openid" property="wechat_openid"/>
+        <result column="difficult_class" property="difficult_class"/>
+        <result column="max_score" property="max_score"/>
+        <result column="max_score_time" property="max_score_time"/>
+        <result column="update_time" property="max_score_time"/>
+    </resultMap>
+
     <!-- 配置映射字段 -->
     <!--<select id="findScoreByWechatOpenid" resultType="com.github.binarywang.demo.wechat.entity.MaxScore">
         SELECT
@@ -59,18 +69,7 @@
         WHERE `wechat_openid` = #{wechat_openid}
         AND   'difficult_class' = #{difficult_class}
     </select>
-  <!--  CREATE TABLE `max_score` (
-    `seq_id` int(11) NOT NULL,
-    `user_id` int(11) NOT NULL,
-    `wechat_openid` varchar(64) NOT NULL COMMENT '用户openid',
-    `difficult_class` varchar(10) NOT NULL COMMENT '表示 游戏难度的阶段，class 1表示一阶，class 2表示二阶 class3 表示三阶',
-    `max_score` decimal(65,0) DEFAULT NULL COMMENT '对应阶段的最高分',
-    `max_score_time` datetime DEFAULT NULL COMMENT '最高分获取更新的时间',
-    `update_time` datetime NOT NULL COMMENT '更新时间',
-    PRIMARY KEY (`seq_id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8-->
 
-    
     <insert id="insertScore" parameterType="com.github.binarywang.demo.wechat.entity.MaxScore">
         INSERT INTO `max_score` (
           `user_id`,
@@ -90,6 +89,28 @@
             #{update_time}
           )
     </insert>
+
+    <!--  CREATE TABLE `max_score` (
+    `seq_id` int(11) NOT NULL,
+    `user_id` int(11) NOT NULL,
+    `wechat_openid` varchar(64) NOT NULL COMMENT '用户openid',
+    `difficult_class` varchar(10) NOT NULL COMMENT '表示 游戏难度的阶段，class 1表示一阶，class 2表示二阶 class3 表示三阶',
+    `max_score` decimal(65,0) DEFAULT NULL COMMENT '对应阶段的最高分',
+    `max_score_time` datetime DEFAULT NULL COMMENT '最高分获取更新的时间',
+    `update_time` datetime NOT NULL COMMENT '更新时间',
+    PRIMARY KEY (`seq_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8-->
+
+
+    <select id="getTop10ScoreByClass" resultMap="scoreList">
+        SELECT distinct `wechat_openid` ,`difficult_class` ,`max_score` ,`max_score_time`
+        FROM max_score
+        where 1= 1
+        <if test = "difficult_class != null">
+           AND difficult_class = #{difficult_class}
+        </if>
+        ORDER BY `max_score` desc LIMIT  10
+    </select>
 
     <!--<update id="updateScore" parameterType="com.github.binarywang.demo.wechat.entity.MaxScore">
         UPDATE
